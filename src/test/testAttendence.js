@@ -1,62 +1,51 @@
 const moongose = require('mongoose');
 const Employee = require("../db/models/employee");
 const Attendence = require("../db/models/attendence");
+const moment = require('moment');
+const fecha = moment("2019-11-06 05:51:00").format('YYYY-MM-DD HH:mm:ss');
+const fecha2 = moment(fecha).format('YYYY-MM-DD HH:mm:ss');
+console.log(fecha);
+console.log(fecha2);
+// moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
+//     .then(db => console.log("[*] Db connected."))
+//     .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
 
-moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(db => console.log("[*] Db connected."))
-    .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
-
-const empleado = new Employee({
-    nombre: "José",
-    puesto: "supervisor",
-    direccion: "lucerna",
-    telefono: "6681688008",
-    fechaNacimiento: "",
-    correo: "correo@gmail.com",
-    rfc: "rcf123",
-    fechaContrato: "",
-    horaEntrada: "",
-    horaSalida: "",
-    semanatrabajo: "",
-    vacacionesDisponibles: "6",
-    diasLibres: "8",
-    psw: "123"
-})
+//     const employee = Employee.findOne();
 
 
-empleado.save((err, doc) => {
+// Employee.findOne({ folio: 2 },(err, doc) => {
 
-    if (err) {
+//     if (err) {
 
-        console.log("No se guardó")
+//         console.log("No se encontró")
 
-    } else {
+//     } else {
 
-        console.log("Se guardó correctamente")
+//         console.log("Se encontró")
 
-        const idEmpleado = doc;
+//         const idEmpleado = doc;
 
-        const attendence = new Attendence({
-            idEmpleado,
-            checkIn: "",
-            type: "1",
-        })
+//         const attendence = new Attendence({
+//             idEmpleado,
+//             checkIn: "",
+//             type: "1",
+//         })
 
-        attendence.save((err, doc) => {
-            if (err) {
+//         attendence.save((err, doc) => {
+//             if (err) {
 
-                console.log("No se guardó la asistencia")
+//                 console.log("No se guardó la asistencia")
 
-            } else {
+//             } else {
 
-                console.log("Se guardó correctamente la asistencia")
+//                 console.log("Se guardó correctamente la asistencia")
 
-            }
+//             }
 
-        });
+//         });
 
-    }
+//     }
 
-});
+// });
 
 
