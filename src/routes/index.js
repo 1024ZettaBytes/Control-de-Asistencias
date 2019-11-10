@@ -1,20 +1,24 @@
 const express = require("express");
 const router = express.Router();
+const moment = require("moment");
 // Models
 const Employee = require("../db/models/employee");
+const Attendence = require("../db/models/attendence");
 
 // User access to index page
-router.get("/", (req, res) => {
+router.get("/", async (req, res) => {
   if (req.session.userId) {
     switch (req.session.userType) {
       case "GERENTE":
+        // Needs to redirect
         res.render("admin/indexAdmin");
         break;
       case "RH":
+        //Needs to redirect
         res.render("rh/indexRH");
         break;
       case "EMPLEADO":
-        res.render("employee/indexEmployee");
+          res.redirect("/empleado")
         break;
     }
   } else {
@@ -37,7 +41,7 @@ router.get("/login", (req, res) => {
 // Reciving login credentials
 router.post("/login", async (req, res) => {
   const { folio, psw } = req.body;
-    onlyDigits = /^\d+$/.test(folio);
+  onlyDigits = /^\d+$/.test(folio);
   if (onlyDigits) {
     const employee = await Employee.findOne({ folio: folio });
     if (employee) {
