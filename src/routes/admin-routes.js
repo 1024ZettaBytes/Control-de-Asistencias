@@ -1,6 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const passport = require("passport");
 // Models
 const Employee = require("../db/models/employee");
 // Route for getting employees

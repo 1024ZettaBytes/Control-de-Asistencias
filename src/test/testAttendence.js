@@ -1,62 +1,47 @@
 const moongose = require('mongoose');
 const Employee = require("../db/models/employee");
 const Attendence = require("../db/models/attendence");
+const moment = require('moment');
 
+console.log(Date.now().toLocaleString());
 moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(db => console.log("[*] Db connected."))
     .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
+  console.log(moment(Date.now()).format("HH:mm:ss"));
 
-const empleado = new Employee({
-    nombre: "José",
-    puesto: "supervisor",
-    direccion: "lucerna",
-    telefono: "6681688008",
-    fechaNacimiento: "",
-    correo: "correo@gmail.com",
-    rfc: "rcf123",
-    fechaContrato: "",
-    horaEntrada: "",
-    horaSalida: "",
-    semanatrabajo: "",
-    vacacionesDisponibles: "6",
-    diasLibres: "8",
-    psw: "123"
-})
+// Employee.findOne({ folio: 2 },(err, doc) => {
 
+//     if (err) {
 
-empleado.save((err, doc) => {
+//         console.log("No se encontró")
 
-    if (err) {
+//     } else {
 
-        console.log("No se guardó")
+//         console.log("Se encontró")
 
-    } else {
+//         const idEmpleado = doc;
 
-        console.log("Se guardó correctamente")
+//         const attendence = new Attendence({
+//             idEmpleado,
+//             checkIn: "",
+//             type: "1",
+//         })
 
-        const idEmpleado = doc;
+//         attendence.save((err, doc) => {
+//             if (err) {
 
-        const attendence = new Attendence({
-            idEmpleado,
-            checkIn: "",
-            type: "1",
-        })
+//                 console.log("No se guardó la asistencia")
 
-        attendence.save((err, doc) => {
-            if (err) {
+//             } else {
 
-                console.log("No se guardó la asistencia")
+//                 console.log("Se guardó correctamente la asistencia")
 
-            } else {
+//             }
 
-                console.log("Se guardó correctamente la asistencia")
+//         });
 
-            }
+//     }
 
-        });
-
-    }
-
-});
+// });
 
 

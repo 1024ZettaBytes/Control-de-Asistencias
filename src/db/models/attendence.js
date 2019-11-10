@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const assistenceSchema = new Schema({
   idEmpleado: {type: mongoose.Schema.Types.ObjectId, ref: 'Employee'},
-  fecha: { type: Date, default: Date.now()},
+  fecha: { type: Date, default: Date.now},
   type: Number,
 });
 
