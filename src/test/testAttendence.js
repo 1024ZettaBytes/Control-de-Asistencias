@@ -7,22 +7,7 @@ console.log(Date.now().toLocaleString());
 moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
     .then(db => console.log("[*] Db connected."))
     .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
-    const employee =  Employee.findOne({
-        folio: 6
-      }, async (err, doc)=>{
-        const todaysDate = moment().add(-1,"d").format("YYYY-MM-DD");
-        const tomorrowsDate = moment()
-          .add(1, "d")
-          .format("YYYY-MM-DD");
-        // Search for todays employee attendence
-        const usrAttendence = await Attendence.findOne({
-          idEmpleado: doc
-        });
-        console.log(usrAttendence.idEmpleado);
-      });
-      
-//     const employee = Employee.findOne();
-
+  console.log(moment(Date.now()).format("HH:mm:ss"));
 
 // Employee.findOne({ folio: 2 },(err, doc) => {
 

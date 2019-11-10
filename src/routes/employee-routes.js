@@ -11,22 +11,22 @@ router.get("/empleado", async (req, res) => {
       const employee = await Employee.findOne({
         folio: req.session.userId
       });
-      const todaysDate = moment().add(-1,"d").format("YYYY-MM-DD");
+      const todaysDate = moment().format("YYYY-MM-DD");
       const tomorrowsDate = moment()
-        .add(1, "d")
+        .add(2, "d")
         .format("YYYY-MM-DD");
       // Search for todays employee attendence
       const usrAttendence = await Attendence.findOne({
         fecha: { $gte: todaysDate, $lte: tomorrowsDate },
         idEmpleado: employee
       });
-      console.log(usrAttendence);
       let attndcInfo = {};
       if (usrAttendence) {
-          console.log("Asistencia encontrada");
         attndcInfo.checked = true;
+        attndcInfo.time = moment(usrAttendence.fecha).format("HH:mm:ss");
         req.session.attendenceState = "checked";
       } else {
+        attndcInfo.time = moment(Date.now()).format("HH:mm:ss");
         // Attendence haven't been checked
 
         // Check if is on work time
@@ -72,33 +72,44 @@ router.post("/empleado/registrarAsistencia", async (req, res) => {
   if (req.session.userId) {
     if (req.session.userType === "EMPLEADO") {
       const attndcState = req.session.attendenceState;
-      if (attndcState != "checked" || attndcState !="noWorkTime") {
-        await Employee.findOne({ folio: req.session.userId }, async (err, doc) => {
-          if (err) {
-            console.log(
-              "No se encontró el empleado durante la creación de asistencia."
-            );
-            res.redirect("../empleado");
-          } else {
-            const idEmpleado = doc;
-            const type = req.session.attendenceState === "onTime" ? 1 : 2;
-            const attendence = new Attendence({
-              idEmpleado,
-              type
-            });
+      if (attndcState != "checked" || attndcState != "noWorkTime") {
+        await Employee.findOne(
+          { folio: req.session.userId },
+          async (err, doc) => {
+            if (err) {
+              console.log(
+                "No se encontró el empleado durante la creación de asistencia."
+              );
+              res.flash(
+                "error_msg",
+                "Ocurrió un error al registrar su asistencia. Intente nuevamente."
+              );
+              res.redirect("../empleado");
+            } else {
+              const idEmpleado = doc;
+              const type = req.session.attendenceState === "onTime" ? 1 : 2;
+              const attendence = new Attendence({
+                idEmpleado,
+                type
+              });
 
-            await attendence.save((err, doc) => {
-              if (err) {
-                res.flash("error_msg", "Ocurrió un error al registrar su asistencia. Intente nuevamente.");
-                console.log("No se guardó la asistencia");
+              await attendence.save((err, doc) => {
+                if (err) {
+                  res.flash(
+                    "error_msg",
+                    "Ocurrió un error al registrar su asistencia. Intente nuevamente."
+                  );
+                  console.log("No se guardó la asistencia");
+                  
+                } else {
+                  console.log("Se guardó correctamente la asistencia");
+                  res.flash("success_msg", "¡Asistencia registrada!");
+                }
                 res.redirect("../empleado");
-              } else {
-                console.log("Se guardó correctamente la asistencia");
-                res.redirect("../empleado");
-              }
-            });
+              });
+            }
           }
-        });
+        );
       } else {
         res.redirect("../empleado");
       }
