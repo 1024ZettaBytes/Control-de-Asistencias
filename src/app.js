@@ -21,7 +21,8 @@ moongose.connect('mongodb://localhost/sys-asistencias', {useNewUrlParser: true, 
 
 // importing routes
 const indexRoutes = require('./routes/index');
-const employeesRoutes = require('./routes/employees');
+const adminRoutes = require('./routes/admin-routes');
+const employeeRoutes = require('./routes/employee-routes');
 
 
 // settings
@@ -45,7 +46,8 @@ app.use(cookieParser('keyboard cat'));
 
 // routes
 app.use('/', indexRoutes);
-app.use(employeesRoutes);
+app.use(adminRoutes);
+app.use(employeeRoutes);
 app.use(express.static(path.join(__dirname, '/public')));
 
 

@@ -2,14 +2,25 @@ const moongose = require('mongoose');
 const Employee = require("../db/models/employee");
 const Attendence = require("../db/models/attendence");
 const moment = require('moment');
-const fecha = moment("2019-11-06 05:51:00").format('YYYY-MM-DD HH:mm:ss');
-const fecha2 = moment(fecha).format('YYYY-MM-DD HH:mm:ss');
-console.log(fecha);
-console.log(fecha2);
-// moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
-//     .then(db => console.log("[*] Db connected."))
-//     .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
 
+console.log(Date.now().toLocaleString());
+moongose.connect('mongodb://localhost/sys-asistencias', { useNewUrlParser: true, useUnifiedTopology: true })
+    .then(db => console.log("[*] Db connected."))
+    .catch(err => console.log("[ERROR] Db connection unsuccessfully."));
+    const employee =  Employee.findOne({
+        folio: 6
+      }, async (err, doc)=>{
+        const todaysDate = moment().add(-1,"d").format("YYYY-MM-DD");
+        const tomorrowsDate = moment()
+          .add(1, "d")
+          .format("YYYY-MM-DD");
+        // Search for todays employee attendence
+        const usrAttendence = await Attendence.findOne({
+          idEmpleado: doc
+        });
+        console.log(usrAttendence.idEmpleado);
+      });
+      
 //     const employee = Employee.findOne();
 
 

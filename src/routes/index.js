@@ -10,62 +10,15 @@ router.get("/", async (req, res) => {
   if (req.session.userId) {
     switch (req.session.userType) {
       case "GERENTE":
+        // Needs to redirect
         res.render("admin/indexAdmin");
         break;
       case "RH":
+        //Needs to redirect
         res.render("rh/indexRH");
         break;
       case "EMPLEADO":
-        {
-          const employee = await Employee.findOne({
-            folio: req.session.userId
-          });
-          const todaysDate = moment().format("YYYY-MM-DD");
-          const tomorrowsDate = moment()
-            .add(1, "d")
-            .format("YYYY-MM-DD");
-          // Search for todays employee attendence
-          const usrAttendence = await Attendence.findOne({
-            fecha: { $gte: todaysDate, $lte: tomorrowsDate },
-            idEmpleado: employee
-          });
-          let attndcInfo = { default: null };
-          if (usrAttendence) attndcInfo.checked = true;
-          else {
-            console.log("No registrada...");
-            // Attendence haven't been checked
-
-            // Check if is on work time
-            if (
-              moment().isSameOrAfter(
-                moment(todaysDate +" "+ employee.horaEntrada + ":00")
-              ) &&
-              moment().isBefore(
-                moment(todaysDate +" "+ employee.horaSalida + ":00")
-              )
-            ) {
-              // Is on work time
-
-              // Check if is on time < 10 minutes
-              if (
-                moment().isBefore(
-                  moment(todaysDate +" "+ employee.horaEntrada + ":00").add(10, "m")
-                )
-              ) {
-                // Is on time
-                attndcInfo.onTime = true;
-              } else {
-                // Is on work time but delayed
-                attndcInfo.delayed = true;
-              }
-            } else {
-              console.log("No está a tiempo...");
-              // Is not on work time
-              attndcInfo.noWorkTime = true;
-            }
-          }
-          res.render("employee/indexEmployee", { attndcInfo });
-        }
+          res.redirect("/empleado")
         break;
     }
   } else {
