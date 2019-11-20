@@ -6,7 +6,10 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
 
     <title>Lista de Empleados</title>
-    <% include ../partials/bootstrap %>
+    <% include ../partials/bootstrap
+    moment().locale('es') 
+    %>
+    
   </head>
 
   <body>
@@ -37,11 +40,7 @@
                 <td><%= employees[n].puesto %></td>
                 <td><%= employees[n].telefono %></td>
                 <td><%= employees[n].correo %></td>
-                <td><%= employees[n].fechaRegistro.toLocaleDateString('es-MX', {
-                    day : 'numeric',
-                    month : 'short',
-                    year : 'numeric'
-                }) %></td>
+                <td><%= moment(employees[n].fechaRegistro).format("DD  MMMM  YYYY") %></td>
               </tr>
               <% }} %>
             </tbody>

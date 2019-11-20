@@ -32,7 +32,6 @@ router.get("/empleados", async (req, res) => {
 // User wants to register an employee
 router.get("/empleados/registrar", (req, res) => {
   if (req.session.userId) {
-    console.log("-" + req.session.userType + "-");
     switch (req.session.userType) {
       case "GERENTE":
         {
@@ -55,7 +54,7 @@ router.get("/empleados/registrar", (req, res) => {
         break;
     }
   } else {
-    res.redirect("login");
+    res.redirect("../login");
   }
   
 });
@@ -159,7 +158,7 @@ router.post("/empleados/registrar", async (req, res) => {
         break;
     }
   } else {
-    res.redirect("login");
+    res.redirect("../login");
   }
   
 });

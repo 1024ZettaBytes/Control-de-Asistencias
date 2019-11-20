@@ -5,6 +5,8 @@ const moongose = require('mongoose');
 const passport = require('passport');
 const methodOverride = require('method-override');
 const session = require('express-session');
+let moment = require('moment');
+require('moment/locale/es');
 
 const cookieParser = require('cookie-parser');
 const flash = require('express-flash-2');
@@ -43,7 +45,7 @@ app.use(cookieParser('keyboard cat'));
   app.use(passport.session());
   app.use(flash());
 // Global Variables
-
+app.locals.moment= moment;
 // routes
 app.use('/', indexRoutes);
 app.use(adminRoutes);
