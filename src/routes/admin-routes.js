@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 // Models
 const Employee = require("../db/models/employee");
+const Attendence = require("../db/models/attendence");
 // Route for getting employees
 router.get("/empleados", async (req, res) => {
   if (req.session.userId) {
@@ -56,13 +57,12 @@ router.get("/empleados/registrar", (req, res) => {
   } else {
     res.redirect("../login");
   }
-  
+
 });
 
 // Reciving new employee information to register
 router.post("/empleados/registrar", async (req, res) => {
   if (req.session.userId) {
-    console.log("-" + req.session.userType + "-");
     switch (req.session.userType) {
       case "GERENTE":
         {
@@ -89,7 +89,7 @@ router.post("/empleados/registrar", async (req, res) => {
             psw
           } = req.body;
           let semanaTrabajo = [];
-        
+
           semanaTrabajo.push(lunes == null ? false : true);
           semanaTrabajo.push(martes == null ? false : true);
           semanaTrabajo.push(miercoles == null ? false : true);
@@ -98,9 +98,9 @@ router.post("/empleados/registrar", async (req, res) => {
           semanaTrabajo.push(sabado == null ? false : true);
           semanaTrabajo.push(domingo == null ? false : true);
           // Look for existing email
-        
+
           const emailEmployee = await Employee.findOne({ correo: correo });
-        
+
           if (emailEmployee) {
             let tempDatos = req.body;
             tempDatos.semanaTrabajo = semanaTrabajo;
@@ -160,6 +160,47 @@ router.post("/empleados/registrar", async (req, res) => {
   } else {
     res.redirect("../login");
   }
-  
+
+});
+// Getting employees attendences
+router.get("/empleados/asistencias", async (req, res) => {
+  if (req.session.userId) {
+    if (req.session.userType === "GERENTE") {
+      const employees = await Employee.find({ puesto: "EMPLEADO" });
+      if (req.session.selectedEmployee) {
+        const sltdEmployee =req.session.selectedEmployee ;
+        delete req.session.selectedEmployee;
+        // Search all selected employee's attendences
+        const employee = await Employee.findOne({
+          folio: sltdEmployee
+        });
+      const empAttendences = await Attendence.find({
+        idEmpleado: employee
+      });
+        res.render("admin/employeesAttendences", {employees, sltdEmployee, empAttendences});
+      }
+      else {
+        res.render("admin/employeesAttendences", {employees, sltdEmployee:-1});
+      }
+    } else {
+      res.redirect("../");
+    }
+  } else {
+    res.redirect("../login");
+  }
+});
+// Reciving selected employee for redirecting
+router.post("/empleados/asistencias", (req, res)=>{
+  if (req.session.userId) {
+    if (req.session.userType === "GERENTE") {
+      const {empleado} = req.body;
+      req.session.selectedEmployee = empleado;
+      res.redirect("../empleados/asistencias");
+    } else {
+      res.redirect("../");
+    }
+  } else {
+    res.redirect("../login");
+  }
 });
 module.exports = router;
