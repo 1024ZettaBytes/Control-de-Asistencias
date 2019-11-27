@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const moment = require('moment');
 // Models
 const Employee = require("../db/models/employee");
 const Attendence = require("../db/models/attendence");
@@ -168,19 +169,19 @@ router.get("/empleados/asistencias", async (req, res) => {
     if (req.session.userType === "GERENTE") {
       const employees = await Employee.find({ puesto: "EMPLEADO" });
       if (req.session.selectedEmployee) {
-        const sltdEmployee =req.session.selectedEmployee ;
+        const sltdEmployee = req.session.selectedEmployee;
         delete req.session.selectedEmployee;
         // Search all selected employee's attendences
         const employee = await Employee.findOne({
           folio: sltdEmployee
         });
-      const empAttendences = await Attendence.find({
-        idEmpleado: employee
-      });
-        res.render("admin/employeesAttendences", {employees, sltdEmployee, empAttendences});
+        const empAttendences = await Attendence.find({
+          idEmpleado: employee
+        });
+        res.render("admin/employeesAttendences", { employees, sltdEmployee, empAttendences });
       }
       else {
-        res.render("admin/employeesAttendences", {employees, sltdEmployee:-1});
+        res.render("admin/employeesAttendences", { employees, sltdEmployee: -1 });
       }
     } else {
       res.redirect("../");
@@ -190,10 +191,10 @@ router.get("/empleados/asistencias", async (req, res) => {
   }
 });
 // Reciving selected employee for redirecting
-router.post("/empleados/asistencias", (req, res)=>{
+router.post("/empleados/asistencias", (req, res) => {
   if (req.session.userId) {
     if (req.session.userType === "GERENTE") {
-      const {empleado} = req.body;
+      const { empleado } = req.body;
       req.session.selectedEmployee = empleado;
       res.redirect("../empleados/asistencias");
     } else {
@@ -201,6 +202,83 @@ router.post("/empleados/asistencias", (req, res)=>{
     }
   } else {
     res.redirect("../login");
+  }
+});
+
+// Getting employess attendences reports
+router.get("/empleados/asistencias/reportes", async (req, res) => {
+  if (req.session.userId) {
+    if (req.session.userType === "GERENTE" || req.session.userType === "RH") {
+      const employees = await Employee.find({ puesto: "EMPLEADO" });
+
+      // Checar si hay un empleado seleccionado
+      if (req.session.options) {
+        const allEmpSelected = req.session.options.todos;
+        const startDate = moment(req.session.options.fechaInicio).format("YYYY-MM-DD");
+        const endDate = moment(req.session.options.fechaFin).add(2,"d").format("YYYY-MM-DD");
+        const sltdEmployee = req.session.options.empleado;
+        let attendences = null;
+
+        let employeesList = [];
+        // Search all selected employee's attendences if it was selected
+        let employee = null;
+        if (allEmpSelected == "false") {
+          employee = await Employee.findOne({
+            folio: sltdEmployee
+          });
+          attendences = await Attendence.find({
+            idEmpleado: employee,
+            fecha: { $gte: startDate, $lte: endDate },
+          });
+          for (at in attendences) {
+            employeesList.push(employee);
+          }
+        }
+        else {
+          attendences = await Attendence.find({
+            fecha: { $gte: startDate, $lte: endDate },
+          });
+          for (let i = 0; i < attendences.length; i++) {
+            employee = await Employee.findOne({
+              _id: attendences[i].idEmpleado
+            });
+            employeesList.push(employee);
+          }
+        }
+        const optionsSelected = req.session.options;
+        delete req.session.options;
+        console.log(attendences.length);
+        res.render("admin/employeesAttendencesReports", { employees, optionsSelected, attendences, employeesList });
+      }
+      // If there are no options selected
+      else {
+        res.render("admin/employeesAttendencesReports", { employees, optionsSelected: {}, attendences: null });
+      }
+    } else {
+      res.redirect("../../");
+    }
+  } else {
+    res.redirect("../../login");
+  }
+});
+
+// Reciving selected employee, dates an types of attendences for redirecting
+router.post("/empleados/asistencias/reportes", (req, res) => {
+  if (req.session.userId) {
+    if (req.session.userType === "GERENTE" || req.session.userType === "RH") {
+      const vars = {
+        todos,
+        empleado,
+        fechaInicio,
+        fechaFin
+      } = req.body;
+      req.session.options = vars;
+      res.redirect("../../empleados/asistencias/reportes");
+    } else {
+      res.redirect("../../");
+    }
+  } else {
+    res.redirect("../../login");
   }
 });
 module.exports = router;
