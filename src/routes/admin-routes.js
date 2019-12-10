@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const moment = require('moment');
+const moment = require("moment");
 // Models
 const Employee = require("../db/models/employee");
 const Attendence = require("../db/models/attendence");
@@ -58,7 +58,6 @@ router.get("/empleados/registrar", (req, res) => {
   } else {
     res.redirect("../login");
   }
-
 });
 
 // Reciving new employee information to register
@@ -67,7 +66,7 @@ router.post("/empleados/registrar", async (req, res) => {
     switch (req.session.userType) {
       case "GERENTE":
         {
-          const {
+          let {
             nombre,
             puesto,
             direccion,
@@ -89,6 +88,8 @@ router.post("/empleados/registrar", async (req, res) => {
             diasLibres,
             psw
           } = req.body;
+          rfc = rfc.toUpperCase();
+          console.log(rfc);
           let semanaTrabajo = [];
 
           semanaTrabajo.push(lunes == null ? false : true);
@@ -106,7 +107,10 @@ router.post("/empleados/registrar", async (req, res) => {
             let tempDatos = req.body;
             tempDatos.semanaTrabajo = semanaTrabajo;
             req.session.datos = tempDatos;
-            res.flash("error_msg", `El correo ${correo} ya se encuentra registrado.`);
+            res.flash(
+              "error_msg",
+              `El correo ${correo} ya se encuentra registrado.`
+            );
             res.redirect("registrar");
           } else {
             // Saving employee
@@ -161,7 +165,6 @@ router.post("/empleados/registrar", async (req, res) => {
   } else {
     res.redirect("../login");
   }
-
 });
 // Getting employees attendences
 router.get("/empleados/asistencias", async (req, res) => {
@@ -178,10 +181,16 @@ router.get("/empleados/asistencias", async (req, res) => {
         const empAttendences = await Attendence.find({
           idEmpleado: employee
         });
-        res.render("admin/employeesAttendences", { employees, sltdEmployee, empAttendences });
-      }
-      else {
-        res.render("admin/employeesAttendences", { employees, sltdEmployee: -1 });
+        res.render("admin/employeesAttendences", {
+          employees,
+          sltdEmployee,
+          empAttendences
+        });
+      } else {
+        res.render("admin/employeesAttendences", {
+          employees,
+          sltdEmployee: -1
+        });
       }
     } else {
       res.redirect("../");
@@ -214,8 +223,10 @@ router.get("/empleados/asistencias/reportes", async (req, res) => {
       // Checar si hay un empleado seleccionado
       if (req.session.options) {
         const allEmpSelected = req.session.options.todos;
-        const startDate = moment(req.session.options.fechaInicio).format("YYYY-MM-DD");
-        const endDate = moment(req.session.options.fechaFin).add(2,"d").format("YYYY-MM-DD");
+        const startDate = moment(req.session.options.fechaInicio).startOf(
+          "days"
+        );
+        const endDate = moment(req.session.options.fechaFin).endOf("days");
         const sltdEmployee = req.session.options.empleado;
         let attendences = null;
 
@@ -228,16 +239,15 @@ router.get("/empleados/asistencias/reportes", async (req, res) => {
           });
           attendences = await Attendence.find({
             idEmpleado: employee,
-            fecha: { $gte: startDate, $lte: endDate },
-          });
+            fecha: { $gte: startDate, $lte: endDate }
+          }).sort({ fecha: -1 });
           for (at in attendences) {
             employeesList.push(employee);
           }
-        }
-        else {
+        } else {
           attendences = await Attendence.find({
-            fecha: { $gte: startDate, $lte: endDate },
-          });
+            fecha: { $gte: startDate, $lte: endDate }
+          }).sort({ fecha: -1 });
           for (let i = 0; i < attendences.length; i++) {
             employee = await Employee.findOne({
               _id: attendences[i].idEmpleado
@@ -248,11 +258,22 @@ router.get("/empleados/asistencias/reportes", async (req, res) => {
         const optionsSelected = req.session.options;
         delete req.session.options;
         console.log(attendences.length);
-        res.render("admin/employeesAttendencesReports", { employees, optionsSelected, attendences, employeesList });
+        res.render("admin/employeesAttendencesReports", {
+          employees,
+          optionsSelected,
+          attendences,
+          employeesList,
+          userType: req.session.userType
+        });
       }
       // If there are no options selected
       else {
-        res.render("admin/employeesAttendencesReports", { employees, optionsSelected: {}, attendences: null });
+        res.render("admin/employeesAttendencesReports", {
+          employees,
+          optionsSelected: {},
+          attendences: null,
+          userType: req.session.userType
+        });
       }
     } else {
       res.redirect("../../");
@@ -266,12 +287,7 @@ router.get("/empleados/asistencias/reportes", async (req, res) => {
 router.post("/empleados/asistencias/reportes", (req, res) => {
   if (req.session.userId) {
     if (req.session.userType === "GERENTE" || req.session.userType === "RH") {
-      const vars = {
-        todos,
-        empleado,
-        fechaInicio,
-        fechaFin
-      } = req.body;
+      const vars = ({ todos, empleado, fechaInicio, fechaFin } = req.body);
       req.session.options = vars;
       res.redirect("../../empleados/asistencias/reportes");
     } else {

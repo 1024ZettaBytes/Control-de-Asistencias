@@ -11,13 +11,14 @@ router.get("/empleado", async (req, res) => {
       const employee = await Employee.findOne({
         folio: req.session.userId
       });
-      const todaysDate = moment().format("YYYY-MM-DD");
+      const todaysDate = moment().startOf("days").format("YYYY-MM-DD");
       const tomorrowsDate = moment()
         .add(2, "d")
         .format("YYYY-MM-DD");
+        console.log(todaysDate);
       // Search for todays employee attendence
       const usrAttendence = await Attendence.findOne({
-        fecha: { $gte: todaysDate, $lte: tomorrowsDate },
+        fecha: { $gte: moment().startOf("days").format(), $lte: moment().endOf("days").format() },
         idEmpleado: employee
       });
       let attndcInfo = {};

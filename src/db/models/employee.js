@@ -14,7 +14,7 @@ const employeeSchema = new Schema({
   horaEntrada: String,
   horaSalida: String,
   semanaTrabajo: [Boolean],
-  echaContrato: Date,
+  fechaContrato: Date,
   vacacionesDisponibles: Number,
   diasLibres: Number,
   psw: { type: String, required: true },

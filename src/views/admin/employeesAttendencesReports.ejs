@@ -21,7 +21,11 @@
 </head>
 
 <body>
+    <%if(userType ==='GERENTE'){%>
     <% include ../partials/menu-admin %>
+    <%}else{%>
+        <% include ../partials/menu-rh %>
+    <%}%>
     <div class="container">
         <% include ../partials/_msgs %>
         <div class="col-md-5 mx-auto text-center">
@@ -61,13 +65,13 @@
                                         <div class="col-sm-6">
                                             <label class="font-weight-bold" for="fechaInicio">Desde</label>
                                             <input id="fechaInicio" type="date" title="Fecha de inicio"
-                                                class="form-control" value="<% if (optionsSelected.fechaInicio){%><%= optionsSelected.fechaInicio %><%}%>"
+                                                class="form-control" value="<% if (optionsSelected.fechaInicio){%><%= optionsSelected.fechaInicio %><%}else{%>2019-01-01<%}%>"
                                                 min="2019-01-01" name="fechaInicio" onchange="changeDatesLimits(0)" required />
                                             </div>
                                             <div class="col-sm-6">
                                                 <label class="font-weight-bold" for="fechaFin">Hasta</label>
-                                                <input id="fechaFin" type="date" title="Fecha final" class="form-control" value="<% if (optionsSelected.fechaFin){%><%= optionsSelected.fechaFin%><%}%>"
-                                                    name="fechaFin" onchange="changeDatesLimits(1)" required />
+                                                <input id="fechaFin" type="date" title="Fecha final" class="form-control" value="<% if (optionsSelected.fechaFin){%><%= optionsSelected.fechaFin%><%}else{%><%=moment().format("YYYY-MM-DD")%><%}%>"
+                                                max="<%= moment().format("YYYY-MM-DD")%>" name="fechaFin" onchange="changeDatesLimits(1)" required />
                                             </div>
                                         </div>
                             </div>
@@ -93,7 +97,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <% for(var n=0;n<attendences.length;n++){ %>
+                                                        <% for(var n=attendences.length-1;n>=0;n--){ %>
                                                         <tr>
                                                             <th scope="row">
                                                                 <%= moment(attendences[n].fecha).format("DD-MM-YYYY") %>
